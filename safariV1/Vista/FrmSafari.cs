@@ -148,7 +148,7 @@ namespace Safari.Vista
             panelBotones.BringToFront(); // asegurar que quede arriba del tablero
         }
 
-       
+
 
 
 
@@ -157,23 +157,40 @@ namespace Safari.Vista
         {
             tablero = new TableLayoutPanel
             {
-                Dock = DockStyle.Fill, // ocupa todo el espacio restante automáticamente
+                Dock = DockStyle.Fill,
                 CellBorderStyle = TableLayoutPanelCellBorderStyle.Single,
                 ColumnCount = columnas,
                 RowCount = filas
             };
 
-            // Configurar columnas y filas con 100% dividido proporcionalmente
+            // Configurar estilos de columna y fila
             for (int i = 0; i < columnas; i++)
                 tablero.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f / columnas));
             for (int j = 0; j < filas; j++)
                 tablero.RowStyles.Add(new RowStyle(SizeType.Percent, 100f / filas));
 
-            // Agregar al formulario al final para que Dock.Fill funcione correctamente
-            Controls.Add(tablero);
-            tablero.BringToFront(); // asegurar que esté encima de cualquier control inferior
-        }
+            // --- NUEVO: Pre-llenar el tablero con PictureBoxes vacíos ---
+            for (int i = 0; i < filas; i++)
+            {
+                for (int j = 0; j < columnas; j++)
+                {
+                    PictureBox pb = new PictureBox
+                    {
+                        Dock = DockStyle.Fill,
+                        SizeMode = PictureBoxSizeMode.Zoom,
+                        BackColor = Color.Transparent // Opcional, para que se vea limpio
+                    };
+                    // Asignamos el evento CLICK aquí una sola vez
+                    pb.MouseClick += Pb_MouseClick;
 
+                    // Lo añadimos al tablero en su posición (columna j, fila i)
+                    tablero.Controls.Add(pb, j, i);
+                }
+            }
+
+            Controls.Add(tablero);
+            tablero.BringToFront();
+        }
 
         // ===================== BOTONES =====================
         private void BtnReiniciar_Click(object sender, EventArgs e)
@@ -203,37 +220,42 @@ namespace Safari.Vista
             ActualizarVista();
 
         }
-      
+
 
 
         // ===================== ACTUALIZAR TABLERO =====================
         private void ActualizarVista()
         {
-            tablero.Controls.Clear();
+            // Congela la lógica de diseño para evitar parpadeos y lentitud
+            tablero.SuspendLayout();
 
             for (int i = 0; i < filas; i++)
             {
                 for (int j = 0; j < columnas; j++)
                 {
-                    PictureBox pb = new PictureBox
-                    {
-                        Dock = DockStyle.Fill,
-                        SizeMode = PictureBoxSizeMode.Zoom,
-                    };
+                    // Recuperamos el PictureBox que ya creamos en esa posición
+                    PictureBox pb = (PictureBox)tablero.GetControlFromPosition(j, i);
 
                     var ser = safari.Tablero[i, j];
+
                     if (ser != null && ser.Imagen != null)
                     {
                         pb.Image = ser.Imagen;
-                        pb.Tag = ser;
-                        pb.MouseClick += Pb_MouseClick;
-                        var tooltip = new ToolTip();
-                        tooltip.SetToolTip(pb, ser.ToString());
-                    }
+                        pb.Tag = ser; 
+
                     
-                    tablero.Controls.Add(pb, j, i);
+                    }
+                    else
+                    {
+                        // Si no hay ser, limpiamos la imagen
+                        pb.Image = null;
+                        pb.Tag = null;
+                    }
                 }
             }
+
+            // Reactiva el pintado
+            tablero.ResumeLayout();
         }
 
         private void FrmSafari_Load(object sender, EventArgs e)

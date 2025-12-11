@@ -64,6 +64,7 @@
     <Compile Include="Controlador\SafariController.cs" />
     <Compile Include="Modelo\Animal.cs" />
     <Compile Include="Modelo\Cazador.cs" />
+    <Compile Include="Modelo\TableroSimulacion.cs" />
     <Compile Include="Modelo\Gazela.cs" />
     <Compile Include="Modelo\Leon.cs" />
     <Compile Include="Modelo\Planta.cs" />
@@ -120,7 +121,9 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Img\cazador.ico" />
+    <Content Include="Img\cazador.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Img\descarga.ico" />
     <Content Include="Img\planta.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
